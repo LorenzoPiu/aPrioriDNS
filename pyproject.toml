@@ -27,6 +27,6 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/LorenzoPiu/aPriori"
-Issues = "https://github.com/LorenzoPiu/aPriori/issues"
+Homepage = "https://github.com/LorenzoPiu/aPrioriDNS"
+Issues = "https://github.com/LorenzoPiu/aPrioriDNS/issues"
 Documentation = "https://apriori.gitbook.io"
