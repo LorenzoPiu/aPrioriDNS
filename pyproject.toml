@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "aPrioriDNS"
+version = "1.1.3"
+authors = [
+  { name="Lorenzo Piu", email="lorenzo.piu@ulb.be" },
+]
+description = "A package to process Direct Numerical Simulations of reacting and non reacting flows"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "numpy>=1.18.0",
+    "scipy>=1.12.0",
+    "matplotlib>=3.2.0",
+	 "cantera>=3.0.0",
+    "tabulate>=0.9.0",
+    "requests>=2.32.0"
+    # Add more dependencies here
+]
+
+[project.urls]
+Homepage = "https://github.com/LorenzoPiu/aPriori"
+Issues = "https://github.com/LorenzoPiu/aPriori/issues"
+Documentation = "https://apriori.gitbook.io"
