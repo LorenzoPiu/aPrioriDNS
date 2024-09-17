@@ -3821,7 +3821,7 @@ def delete_file(file_path):
     else:
         print(f"No such file: '{file_path}'")
 
-def download(repo_url="https://github.com/LorenzoPiu/aPriori/tree/main/data", dest_folder="./"):
+def download(repo_url="https://github.com/LorenzoPiu/aPrioriDNS/tree/main/data/Lifted_H2_subdomain", dest_folder="./"):
     """
     Downloads all files from a specified GitHub repository directory and saves them to the destination folder,
     including files in subdirectories.
