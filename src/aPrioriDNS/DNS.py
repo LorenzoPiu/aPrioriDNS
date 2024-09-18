@@ -3693,38 +3693,7 @@ class Mesh3D:
 ###############################################################################
 #                               Functions
 ###############################################################################
-def process_chunk_LFR(j, T_chunk, P_chunk, Y_chunk, kinetic_mechanism):
-    gas = ct.Solution(kinetic_mechanism)
-    gas.TPY = T_chunk[j], P_chunk[j], Y_chunk[:, j]
-    R_j = gas.net_production_rates * gas.molecular_weights
-    HRR_j = gas.heat_release_rate 
-    Mu_j = gas.viscosity # dynamic viscosity, Pa*s
 
-    return R_j, HRR_j, Mu_j
-
-def process_chunk_PSR(j, T_j, P_j, RHO_j, Tau_c_j, Tau_m_j, Y_j, kinetic_mechanism):
-    gas = ct.Solution(kinetic_mechanism)
-    gas.TPY = T_j, P_j, Y_j
-    tau_star = np.minimum(Tau_c_j, Tau_m_j)
-    Y0 = gas.Y
-    h0 = gas.partial_molar_enthalpies / gas.molecular_weights  # partial mass enthalpy [J/kg].
-    
-    reactor = ct.IdealGasReactor(gas)
-    sim = ct.ReactorNet([reactor])
-    t_start = 0
-    t_end = tau_star
-    
-    # Integrate the batch reactor in time
-    while t_start < t_end:
-        t_start = sim.step()
-    
-    Ystar = gas.Y
-    hstar = gas.enthalpy_mass  # Specific enthalpy [J/kg].
-    
-    R_j = RHO_j / tau_star * (Ystar - Y0)
-    HRR_j = -np.sum(h0 * R_j)
-    
-    return R_j, HRR_j
 
 def compute_cell_volumes(x, y, z):
     """
@@ -3821,7 +3790,7 @@ def delete_file(file_path):
     else:
         print(f"No such file: '{file_path}'")
 
-def download(repo_url="https://github.com/LorenzoPiu/aPrioriDNS/tree/main/data/Lifted_H2_subdomain", dest_folder="./"):
+def download(repo_url="https://github.com/LorenzoPiu/aPrioriDNS/tree/main/data", dest_folder="./"):
     """
     Downloads all files from a specified GitHub repository directory and saves them to the destination folder,
     including files in subdirectories.
@@ -4453,6 +4422,39 @@ def plot_power_spectrum(field, C=5):
     plt.grid()
     
     return
+
+def process_chunk_LFR(j, T_chunk, P_chunk, Y_chunk, kinetic_mechanism):
+    gas = ct.Solution(kinetic_mechanism)
+    gas.TPY = T_chunk[j], P_chunk[j], Y_chunk[:, j]
+    R_j = gas.net_production_rates * gas.molecular_weights
+    HRR_j = gas.heat_release_rate 
+    Mu_j = gas.viscosity # dynamic viscosity, Pa*s
+
+    return R_j, HRR_j, Mu_j
+
+def process_chunk_PSR(j, T_j, P_j, RHO_j, Tau_c_j, Tau_m_j, Y_j, kinetic_mechanism):
+    gas = ct.Solution(kinetic_mechanism)
+    gas.TPY = T_j, P_j, Y_j
+    tau_star = np.minimum(Tau_c_j, Tau_m_j)
+    Y0 = gas.Y
+    h0 = gas.partial_molar_enthalpies / gas.molecular_weights  # partial mass enthalpy [J/kg].
+    
+    reactor = ct.IdealGasReactor(gas)
+    sim = ct.ReactorNet([reactor])
+    t_start = 0
+    t_end = tau_star
+    
+    # Integrate the batch reactor in time
+    while t_start < t_end:
+        t_start = sim.step()
+    
+    Ystar = gas.Y
+    hstar = gas.enthalpy_mass  # Specific enthalpy [J/kg].
+    
+    R_j = RHO_j / tau_star * (Ystar - Y0)
+    HRR_j = -np.sum(h0 * R_j)
+    
+    return R_j, HRR_j
 
 def section_and_average(x, y, n_sections):
     """
