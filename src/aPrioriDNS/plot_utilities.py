@@ -9,7 +9,6 @@ Created on Mon Jul 26 17:17:23 2024
 import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
-import seaborn as sns
 from scipy.stats import gaussian_kde
 
 from ._styles import ParityPlot, ContourPlot, CondMeanPlot, ScatterPlot
