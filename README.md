@@ -40,7 +40,7 @@ Created on Fri May 24 14:50:44 2024
 import aPrioriDNS as ap
 
 # Download the dataset
-# ap.download()
+ap.download()
 
 # Initialize 3D DNS field
 field_DNS = ap.Field3D('Lifted_H2_subdomain')
@@ -165,3 +165,5 @@ f = ap.parity_plot(field_filtered.HRR_DNS.value,  # x
                    )
 
 ```
+
+
