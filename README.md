@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/LorenzoPiu/Images/blob/main/Logo-0.0.8.png" width="35%">
+  <img src="https://raw.githubusercontent.com/LorenzoPiu/Images/refs/heads/main/Logo-0.0.8.png" width="35%">
 </p>
 
 #

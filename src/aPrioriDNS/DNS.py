@@ -8,6 +8,7 @@ Created on Mon Feb 26 17:17:23 2024
 
 import json
 import os
+from os import cpu_count
 import sys
 from tabulate import tabulate
 import shutil
@@ -642,15 +643,15 @@ class Field3D():
                               RHO=DNS_field.RHO._3d, 
                               favre=favre, 
                               filter_type=filter_type)
-            
-            K_LES = 0.5*(self.U_X._3d**2 + self.U_Y._3d**2 + self.U_Z._3d**2) # filt(u)*filt(u)
-            
-            M = K_LES/K_DNS
-            del K_DNS
-            del K_LES
-            
-            save_file(M, self.find_path('M'))
-            self.update()
+        
+        K_LES = 0.5*(self.U_X._3d**2 + self.U_Y._3d**2 + self.U_Z._3d**2) # filt(u)*filt(u)
+        
+        M = K_LES/K_DNS
+        del K_DNS
+        del K_LES
+        
+        save_file(M, self.find_path('M'))
+        self.update()
                 
         return
     
