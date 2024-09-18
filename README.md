@@ -11,5 +11,20 @@ A Python package to process combustion DNS.
 Run the following command to install:
 
 ```python
-pip install -i https://test.pypi.org/simple/ aPriori
+pip install aPrioriDNS
 ```
+
+This will automatically install or update the following dependencies if necessary:
+
+- numpy>=1.18.0,
+- scipy>=1.12.0,
+- matplotlib>=3.2.0,
+- cantera>=3.0.0,
+- tabulate>=0.9.0,
+- requests>=2.32.0.
+
+## Documentation
+
+The complete software documentation is available at: 
+
+https://apriori.gitbook.io/apriori-documentation-1
