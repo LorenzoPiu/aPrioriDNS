@@ -7,7 +7,7 @@
 [![Static Badge](https://img.shields.io/badge/Issues-Github-teal?logo=Github&logoColor=white)](https://github.com/LorenzoPiu/aPrioriDNS/issues)
 [![Static Badge](https://zenodo.org/badge/DOI/10.5281/zenodo.13793622.svg)](https://zenodo.org/records/13793623)
 
-A Python package to process combustion Direct Numerical Simulations.
+A Python package to process Direct Numerical Simulations.
 
 ## Purpose of the project
 The project aims to help make large datasets more accessible to everyone, both to those who come from the field of Combustion and Fluid Dynamics, and who come from other fields.
