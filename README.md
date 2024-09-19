@@ -9,6 +9,9 @@
 
 A Python package to process combustion Direct Numerical Simulations.
 
+## Purpose of the project
+aPriori is a Python package used to process Direct Numerical Simulations (DNS) data. The project aims to help make large datasets more accessible to everyone, both to those who come from the field of Combustion and Fluid Dynamics, and who come from other fields.
+
 ## Installation
 
 Run the following command to install:
@@ -33,6 +36,8 @@ The complete software documentation is available at:
 https://apriori.gitbook.io/apriori-documentation-1
 
 ## Quickstart
+The following code can be used to test the library once installed. A detailed explanation of the workflow presented is available [here](https://apriori.gitbook.io/apriori-documentation-1/getting-started/quickstart).
+
 ```python
 """
 Created on Fri May 24 14:50:44 2024
