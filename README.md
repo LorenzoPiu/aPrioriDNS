@@ -2,9 +2,11 @@
   <img src="https://raw.githubusercontent.com/LorenzoPiu/Images/refs/heads/main/Logo-0.0.8.png" width="35%">
 </p>
 
-#
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
+![Static Badge](https://img.shields.io/badge/Documentation-Gitbook-blue?logo=Gitbook&logoColor=white&link=https%3A%2F%2Fapriori.gitbook.io%2Fapriori-documentation-1)
+![Static Badge](https://img.shields.io/badge/Issues-Github-green?logo=Github&logoColor=white&link=https%3A%2F%2Fgithub.com%2FLorenzoPiu%2FaPrioriDNS%2Fissues)
 
-A Python package to process combustion DNS.
+A Python package to process combustion Direct Numerical Simulations.
 
 ## Installation
 
