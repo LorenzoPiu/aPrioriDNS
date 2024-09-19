@@ -12,7 +12,7 @@ A Python package to process combustion Direct Numerical Simulations.
 ## Purpose of the project
 The project aims to help make large datasets more accessible to everyone, both to those who come from the field of Combustion and Fluid Dynamics, and who come from other fields.
 Processing DNS data can be challenging in several ways. This package offers:
-- **Field3D**: An object that automatically reads formatted data aligned with [Blastnet](https://blastnet.github.io), an open source repository of scientific datasets.
+- **Field3D**: An object that automatically reads formatted data aligned with [Blastnet](https://blastnet.github.io), an open source scientific repository.
 - **Scalar3D**: An object that efficiently manages pointers to local files, preventing memory overload.
 - **Plotting utilities**: Generate visualizations with just one line of code, simplifying the validation of process.
 
