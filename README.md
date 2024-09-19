@@ -3,9 +3,9 @@
 </p>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
-![Static Badge](https://img.shields.io/badge/Documentation-Gitbook-green?logo=Gitbook&logoColor=white&link=https%3A%2F%2Fapriori.gitbook.io%2Fapriori-documentation-1)(https://apriori.gitbook.io/apriori-documentation-1)
-![Static Badge](https://img.shields.io/badge/Issues-Github-teal?logo=Github&logoColor=white&link=https%3A%2F%2Fgithub.com%2FLorenzoPiu%2FaPrioriDNS%2Fissues)
-![Static Badge](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.13793622-blue?link=https%3A%2F%2Fzenodo.org%2Fdoi%2F10.5281%2Fzenodo.13793622)
+[![Static Badge](https://img.shields.io/badge/Documentation-Gitbook-green?logo=Gitbook&logoColor=white)](https://apriori.gitbook.io/apriori-documentation-1)
+[![Static Badge](https://img.shields.io/badge/Issues-Github-teal?logo=Github&logoColor=white)](https://github.com/LorenzoPiu/aPrioriDNS/issues)
+[![Static Badge](https://zenodo.org/badge/DOI/10.5281/zenodo.13793622.svg)](https://zenodo.org/records/13793623)
 
 A Python package to process combustion Direct Numerical Simulations.
 
