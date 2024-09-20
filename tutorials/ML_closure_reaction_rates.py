@@ -207,8 +207,8 @@ f = ap.contour_plot(filtered_field.mesh.X_midZ*1000,   # Extract x mesh on the z
                     title=r'$|\dot{Q}_{LFR}-\dot{Q}_{DNS}|$'
                     )
 
-f = ap.contour_plot(filtered_field.mesh.X_midZ,   # Extract x mesh on the z midplane
-                    filtered_field.mesh.Y_midZ,   # Extract y mesh on the z midplane
+f = ap.contour_plot(filtered_field.mesh.X_midZ*1000,   # Extract x mesh on the z midplane
+                    filtered_field.mesh.Y_midZ*1000,   # Extract y mesh on the z midplane
                     np.abs(HRR_ML_2D-HRR_DNS_2D),
                     vmax=1.5e10,
                     colormap='Reds',
@@ -218,8 +218,8 @@ f = ap.contour_plot(filtered_field.mesh.X_midZ,   # Extract x mesh on the z midp
                     )
 
 # Visualize the NN output
-f = ap.contour_plot(filtered_field.mesh.X_midZ,   # Extract x mesh on the z midplane
-                    filtered_field.mesh.Y_midZ,   # Extract y mesh on the z midplane
+f = ap.contour_plot(filtered_field.mesh.X_midZ*1000,   # Extract x mesh on the z midplane
+                    filtered_field.mesh.Y_midZ*1000,   # Extract y mesh on the z midplane
                     gamma_2D,
                     colormap='viridis',
                     x_name='x [mm]',
