@@ -200,5 +200,5 @@ plt.scatter(Tau_c, gamma, s=0.001)
 plt.scatter(T, HRR_DNS/HRR_LFR, s=0.001)
 
 np.sqrt(np.sum((gamma*HRR_LFR - HRR_DNS)**2))
-np.sqrt(np.sum((*HRR_LFR - HRR_DNS)**2))
+np.sqrt(np.sum((HRR_LFR - HRR_DNS)**2))
 np.sqrt(np.sum((HRR_LFR - HRR_DNS)**2))
