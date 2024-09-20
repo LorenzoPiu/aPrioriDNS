@@ -226,25 +226,3 @@ f = ap.contour_plot(filtered_field.mesh.X_midZ,   # Extract x mesh on the z midp
                     y_name='y [mm]',
                     title=r'$\gamma_{NN}$'
                     )
-
-
-# plt.scatter(HRR_DNS, HRR_LFR, s=0.001)
-# plt.plot(np.array([0,5e9]), np.array([0,5e9]), c='k')
-# plt.axis('equal')
-# plt.show
-
-# plt.figure()
-# plt.scatter(HRR_DNS, gamma*HRR_LFR, s=0.001)
-# plt.plot(np.array([0,5e9]), np.array([0,5e9]), c='k')
-# plt.axis('equal')
-# plt.show
-
-# plt.scatter(T, gamma, s=0.001)
-# plt.scatter(C, gamma, s=0.001)
-# plt.scatter(S, gamma, s=0.001)
-# plt.scatter(Tau_c, gamma, s=0.001)
-# plt.scatter(T, HRR_DNS/HRR_LFR, s=0.001)
-
-# np.sqrt(np.sum((gamma*HRR_LFR - HRR_DNS)**2))
-# np.sqrt(np.sum((HRR_LFR - HRR_DNS)**2))
-# np.sqrt(np.sum((HRR_LFR - HRR_DNS)**2))
