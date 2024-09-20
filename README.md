@@ -16,6 +16,10 @@ Processing DNS data can be challenging in several ways. This package offers:
 - **Scalar3D**: An object that efficiently manages pointers to local files, preventing memory overload.
 - **Plotting utilities**: Generate visualizations with just one line of code, simplifying the validation of process.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/LorenzoPiu/Images/refs/heads/main/Library_description.png" width="85%">
+</p>
+
 ## Installation
 
 Run the following command to install:
