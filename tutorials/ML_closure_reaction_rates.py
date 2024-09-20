@@ -7,6 +7,7 @@ Created on Fri May 24 14:50:44 2024
 """
 
 import os
+import aPrioriDNS as ap
 from aPrioriDNS.DNS import Field3D
 
 directory = os.path.join('..', '..','data','Lifted_H2_subdomain') # change this with your path to the data folder
