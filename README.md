@@ -12,7 +12,7 @@ A Python package to process Direct Numerical Simulations of reacting and non-rea
 ## Purpose of the project
 The project aims to help make large DNS (Direct Numerical Simulations) datasets more accessible to everyone, both to those who come from the field of Combustion and Fluid Dynamics, and who come from other fields.
 Processing DNS data can be challenging in several ways. This package offers:
-- **Field3D**: An object that automatically reads formatted data aligned with [Blastnet](https://blastnet.github.io), an open source scientific repository.
+- **Field3D**: An object that automatically reads formatted data aligned with [Blastnet](https://blastnet.github.io) [1, 2], an open source scientific repository.
 - **Scalar3D**: An object that efficiently manages pointers to local files, preventing memory overload.
 - **Plotting utilities**: Generate visualizations with just one line of code, simplifying the validation of process.
 
@@ -177,5 +177,10 @@ f = ap.parity_plot(field_filtered.HRR_DNS.value,  # x
                    )
 
 ```
+
+## Bibliography
+[1] W. T. Chung, B. Akoush, P. Sharma, A. Tamkin, K. S. Jung, J. H. Chen, J. Guo, D. Brouzet, M. Talei, B. Savard, A.Y. Poludnenko & M. Ihme. Turbulence in Focus: Benchmarking Scaling Behavior of 3D Volumetric Super-Resolution with BLASTNet 2.0 Data. Advances in Neural Information Processing Systems (2023) 36.
+
+[2] W. T. Chung, M. Ihme, K. S. Jung, J. H. Chen, J. Guo,  D. Brouzet, M. Talei, B. Jiang, B. Savard, A. Y. Poludnenko, B. Akoush, P. Sharma & A. Tamkin. BLASTNet Simulation Dataset (Version 2.0), 2023. https://blastnet.github.io/. 
 
 
