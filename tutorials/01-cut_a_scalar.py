@@ -5,6 +5,7 @@ Created on Fri May 24 09:31:52 2024
 
 @author: lorenzo piu
 """
+
 """
 # Cut a 3D scalar
 
@@ -18,6 +19,7 @@ pip install aPrioriDNS
 """
 import aPrioriDNS as ap
 import numpy as np
+
 """
 now let's define a generic array that we will use as a scalar field """
 
@@ -38,14 +40,17 @@ print(f'Scalar\'s shape after cutting with \'equal\' mode:\n{scalar.shape}')
 """
 This time we are going to download the DNS dataset, to use the Scalar3D class
 in a more useful way. This approach uses a pointer to the file instead than
-loading the data.
+loading the data. This can help when processing large datasets, avoiding to 
+overload the RAM and avoid kernel restarting.
 If you downloaded a different folder from Github or from Blastnet, 
 it will be enough to change the directory path and comment the line  
 ap.download()
 """
+
 import os
 
-ap.download() # Downloads the dataset at 
+ap.download() # Downloads the dataset at https://github.com/LorenzoPiu/aPrioriDNS/tree/main/data
+# The download can take a couple of minutes
 
 directory = os.path.join('.','Lifted_H2_subdomain') # change this with your path to the data folder
 T_path = os.path.join(directory,'data', 'T_K_id000.dat')
@@ -93,8 +98,4 @@ the x direction, the function will remove 3 cells at the beginning and 3 at the 
 T_cut = T.cut(n_cut=[30, 0, 10], mode='xyz')
 print(f'Initial shape:                               {T.shape}')
 print(f'Scalar\'s shape after cutting with \'xyz\' mode:{T_cut.shape}')
-
-
-
-
 
