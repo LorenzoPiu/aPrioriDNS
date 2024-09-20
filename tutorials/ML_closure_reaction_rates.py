@@ -163,7 +163,7 @@ for epoch in range(num_epochs):
     train_loss_list.append(loss.item()) # Save the losses
     test_loss_list.append(loss_test.item())
 
-    if (epoch + 1) % 1 == 0:
+    if (epoch + 1) % 10 == 0: # Only prints every 10 epochs
         print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}, Test loss: {loss_test.item():.4f}')
 
 # Plot training and testing loss
