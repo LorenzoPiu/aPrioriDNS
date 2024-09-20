@@ -12,22 +12,19 @@ The goal of this exercise is to explain how the class Scalar3D works, in the
 two modes available. Once understood this, using this class should simplify
 operations with large 3d arrays.
 
-Make sure to download the data folder from the GitHub repo to be able to do
-this tutorial until the end :)
-
 First of all, we need to import the module. Make sure you installed
 the package with the command
 pip install aPrioriDNS
 """
-import aPrioriDNS
-from aPrioriDNS.DNS import Scalar3D
+import aPrioriDNS as ap
+import numpy as np
 """
 now let's define a generic array that we will use as a scalar field """
-import numpy as np
+
 shape = [30, 20, 15]
 array = np.random.rand(*shape)
 
-scalar = Scalar3D(shape=shape, value=array)
+scalar = ap.Scalar3D(shape=shape, value=array)
 print(f'Initial shape:\n{scalar.shape}')
 """
 Cut the field using the mode 'equal'. This is useful when we want to
@@ -39,25 +36,32 @@ scalar.cut(n_cut=2, mode='equal')
 print(f'Scalar\'s shape after cutting with \'equal\' mode:\n{scalar.shape}')
 
 """
-This time we are going to use the DNS dataset, to use the Scalar3D class
-in a more useful way.
-If you downloaded the entire folder from github this path should work fine
+This time we are going to download the DNS dataset, to use the Scalar3D class
+in a more useful way. This approach uses a pointer to the file instead than
+loading the data.
+If you downloaded a different folder from Github or from Blastnet, 
+it will be enough to change the directory path and comment the line  
+ap.download()
 """
 import os
-directory = os.path.join('..','data','Lifted_H2_subdomain') # change this with your path to the data folder
+
+ap.download() # Downloads the dataset at 
+
+directory = os.path.join('.','Lifted_H2_subdomain') # change this with your path to the data folder
 T_path = os.path.join(directory,'data', 'T_K_id000.dat')
 print(f"\nChecking the path '{T_path}' is correct...")
 if not os.path.exists(T_path):
-    raise ValueError("The path '{T_path}' does not exist in your system. Check to have the correct path to your data folder in the code")
+    raise ValueError("The path '{T_path}' does not exist in your system. "
+                     "Change directory with the correct path to the data folder")
 
-# Blastnet's data contain information about the shape of the field in the info.json file
+# Blastnet's datasets contain information about the shape of the field in the info.json file
 import json
 with open(os.path.join(directory,'info.json'), 'r') as file:
     info = json.load(file)
 DNS_shape = info['global']['Nxyz']
     
 # Now we have the shape and the path of the file, we can define the Scalar3D object:
-T = Scalar3D(shape=DNS_shape, path=T_path)
+T = ap.Scalar3D(shape=DNS_shape, path=T_path)
 # Try to access the value of the temperature field:
 T_values = T._3D #this will return a 3d array with the values of Temperature
 print("Temperature value in the cell 10,10,10")
