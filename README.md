@@ -16,6 +16,19 @@ Processing DNS data can be challenging in several ways. This package offers:
 - **Scalar3D**: An object that efficiently manages pointers to local files, preventing memory overload.
 - **Plotting utilities**: Generate visualizations with just one line of code, simplifying the validation of process.
 
+## Functionalities
+This library simplifies the standard workflow commonly used for a priori validation with DNS data. 
+A priori validation is typically applied to assess turbulence and combustion models. More recently, 
+this approach has been extended to train and evaluate machine learning models, which are increasingly 
+utilized in the fluid dynamics community to enhance the accuracy of source term modeling.
+
+The following figure displays the typical set of operations that using aPriori can be performed with a few lines of
+code:
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/LorenzoPiu/Images/refs/heads/main/Library_description.png" width="85%">
+</p>
+
 ## Installation
 
 Run the following command to install:
