@@ -177,28 +177,34 @@ plt.legend()
 plt.show()
 
 # PLOTTING
-
 with torch.no_grad():
     gamma = model(torch.tensor(X, dtype=torch.float32).to(device)).cpu().numpy()
-YO2 = filtered_field.YO2.value.reshape(length,1)
+    
+# Compute progress variable
+YO2 = filtered_field.Y_O2._3D
 C = (np.max(YO2) - YO2) / (np.max(YO2) - np.min(YO2))
 
-plt.scatter(HRR_DNS, HRR_LFR, s=0.001)
-plt.plot(np.array([0,5e9]), np.array([0,5e9]), c='k')
-plt.axis('equal')
-plt.show
+# Visualize the results
+ap.parity_plot(HRR_DNS, HRR_LFR)
+ap.parity_plot(HRR_DNS, gamma*HRR_LFR)
 
-plt.scatter(HRR_DNS, gamma*HRR_LFR, s=0.001)
-plt.plot(np.array([0,5e9]), np.array([0,5e9]), c='k')
-plt.axis('equal')
-plt.show
+# plt.scatter(HRR_DNS, HRR_LFR, s=0.001)
+# plt.plot(np.array([0,5e9]), np.array([0,5e9]), c='k')
+# plt.axis('equal')
+# plt.show
 
-plt.scatter(T, gamma, s=0.001)
-plt.scatter(C, gamma, s=0.001)
-plt.scatter(S, gamma, s=0.001)
-plt.scatter(Tau_c, gamma, s=0.001)
-plt.scatter(T, HRR_DNS/HRR_LFR, s=0.001)
+# plt.figure()
+# plt.scatter(HRR_DNS, gamma*HRR_LFR, s=0.001)
+# plt.plot(np.array([0,5e9]), np.array([0,5e9]), c='k')
+# plt.axis('equal')
+# plt.show
 
-np.sqrt(np.sum((gamma*HRR_LFR - HRR_DNS)**2))
-np.sqrt(np.sum((HRR_LFR - HRR_DNS)**2))
-np.sqrt(np.sum((HRR_LFR - HRR_DNS)**2))
+# plt.scatter(T, gamma, s=0.001)
+# plt.scatter(C, gamma, s=0.001)
+# plt.scatter(S, gamma, s=0.001)
+# plt.scatter(Tau_c, gamma, s=0.001)
+# plt.scatter(T, HRR_DNS/HRR_LFR, s=0.001)
+
+# np.sqrt(np.sum((gamma*HRR_LFR - HRR_DNS)**2))
+# np.sqrt(np.sum((HRR_LFR - HRR_DNS)**2))
+# np.sqrt(np.sum((HRR_LFR - HRR_DNS)**2))
