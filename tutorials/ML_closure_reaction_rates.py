@@ -163,7 +163,7 @@ for epoch in range(num_epochs):
     train_loss_list.append(loss.item()) # Save the losses
     test_loss_list.append(loss_test.item())
 
-    if (epoch + 1) % 10 == 0: # Only prints every 10 epochs
+    if (epoch + 1) % 10 == 0:
         print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}, Test loss: {loss_test.item():.4f}')
 
 # Plot training and testing loss
@@ -179,14 +179,54 @@ plt.show()
 # PLOTTING
 with torch.no_grad():
     gamma = model(torch.tensor(X, dtype=torch.float32).to(device)).cpu().numpy()
-    
-# Compute progress variable
-YO2 = filtered_field.Y_O2._3D
-C = (np.max(YO2) - YO2) / (np.max(YO2) - np.min(YO2))
 
 # Visualize the results
-ap.parity_plot(HRR_DNS, HRR_LFR)
-ap.parity_plot(HRR_DNS, gamma*HRR_LFR)
+f = ap.parity_plot(HRR_DNS, HRR_LFR, density=True, 
+               x_name=r'$\dot{Q}_{DNS}$',
+               y_name=r'$\dot{Q}_{LFR}$',
+               cbar_title=r'$\rho_{KDE}/max(\rho_{KDE})$',
+               )
+f = ap.parity_plot(HRR_DNS, gamma*HRR_LFR,density=True, 
+               x_name=r'$\dot{Q}_{DNS}$',
+               y_name=r'$\dot{Q}_{ML}$',
+               cbar_title=r'$\rho_{KDE}/max(\rho_{KDE})$',
+               )
+
+gamma_2D = gamma.reshape(filtered_field.shape)[:,:,filtered_field.shape[2]//2] # extract the z midplane of gamma
+HRR_LFR_2D = HRR_LFR.reshape(filtered_field.shape)[:,:,filtered_field.shape[2]//2]# extract the z midplane
+HRR_ML_2D = gamma_2D * HRR_LFR_2D
+HRR_DNS_2D = HRR_DNS.reshape(filtered_field.shape)[:,:,filtered_field.shape[2]//2]# extract the z midplane
+
+f = ap.contour_plot(filtered_field.mesh.X_midZ*1000,   # Extract x mesh on the z midplane
+                    filtered_field.mesh.Y_midZ*1000,   # Extract y mesh on the z midplane
+                    np.abs(HRR_LFR_2D-HRR_DNS_2D),
+                    vmax=1.5e10,
+                    colormap='Reds',
+                    x_name='x [mm]',
+                    y_name='y [mm]',
+                    title=r'$|\dot{Q}_{LFR}-\dot{Q}_{DNS}|$'
+                    )
+
+f = ap.contour_plot(filtered_field.mesh.X_midZ,   # Extract x mesh on the z midplane
+                    filtered_field.mesh.Y_midZ,   # Extract y mesh on the z midplane
+                    np.abs(HRR_ML_2D-HRR_DNS_2D),
+                    vmax=1.5e10,
+                    colormap='Reds',
+                    x_name='x [mm]',
+                    y_name='y [mm]',
+                    title=r'$|\dot{Q}_{LFR}-\dot{Q}_{DNS}|$'
+                    )
+
+# Visualize the NN output
+f = ap.contour_plot(filtered_field.mesh.X_midZ,   # Extract x mesh on the z midplane
+                    filtered_field.mesh.Y_midZ,   # Extract y mesh on the z midplane
+                    gamma_2D,
+                    colormap='viridis',
+                    x_name='x [mm]',
+                    y_name='y [mm]',
+                    title=r'$\gamma_{NN}$'
+                    )
+
 
 # plt.scatter(HRR_DNS, HRR_LFR, s=0.001)
 # plt.plot(np.array([0,5e9]), np.array([0,5e9]), c='k')
