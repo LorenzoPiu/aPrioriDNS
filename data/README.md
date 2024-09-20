@@ -1,6 +1,6 @@
 # Tutorial dataset
 
-This folder contains a dataset to use to test the library. The dataset was extracted from a DNS simulation of a [lifted non-premixed hydrogen jet flame](https://blastnet.github.io/jung2021.html) [1]. 
+This folder contains a dataset used as a reference to test the library. The dataset was extracted from a DNS simulation of a [lifted non-premixed hydrogen jet flame](https://blastnet.github.io/jung2021.html) [1]. 
 
 The original snapshot of this flame is available on [Blastnet]()[2, 3] The domain was reduced to a size of 200x200x100 grid points, without changing the formatting.
 
