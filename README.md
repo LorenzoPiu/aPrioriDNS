@@ -4,7 +4,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
 [![Static Badge](https://img.shields.io/badge/Documentation-Gitbook-green?logo=Gitbook&logoColor=white)](https://apriori.gitbook.io/apriori-documentation-1)
-[![Static Badge](https://img.shields.io/badge/Issues-Github-teal?logo=Github&logoColor=white)](https://github.com/LorenzoPiu/aPrioriDNS/issues)
+[![Static Badge](https://img.shields.io/badge/Issues-Github-02bfa6?&logo=Github&logoColor=white)](https://github.com/LorenzoPiu/aPrioriDNS/issues)
+[![Static Badge](https://img.shields.io/pypi/dm/aprioridns?color=03b1fc&logo=pypi&logoColor=white)](https://pypistats.org/packages/aprioridns)
 [![Static Badge](https://zenodo.org/badge/DOI/10.5281/zenodo.13793622.svg)](https://zenodo.org/records/13793623)
 
 A Python package to process Direct Numerical Simulations of reacting and non-reacting flows.
