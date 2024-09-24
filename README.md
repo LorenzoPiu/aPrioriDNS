@@ -53,6 +53,10 @@ The complete software documentation is available at:
 
 https://apriori.gitbook.io/apriori-documentation-1
 
+## How to cite
+This open-source software is distributed under the MIT license. If you use it in your work, please cite it as:
+Lorenzo Piu. ‘aprioridns: V1.1.8’. Zenodo, 19 September 2024. https://doi.org/10.5281/zenodo.13793623.
+
 ## Quickstart
 The following code can be used to test the library once installed. A detailed explanation of the workflow presented is available [here](https://apriori.gitbook.io/apriori-documentation-1/getting-started/quickstart).
 
