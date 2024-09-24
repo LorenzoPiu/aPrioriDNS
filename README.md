@@ -15,7 +15,7 @@ The project aims to help make large DNS (Direct Numerical Simulations) datasets 
 Processing DNS data can be challenging in several ways. This package offers:
 - **Field3D**: An object that automatically reads formatted data aligned with [Blastnet](https://blastnet.github.io) [1, 2], an open source scientific repository.
 - **Scalar3D**: An object that efficiently manages pointers to local files, preventing memory overload.
-- **Plotting utilities**: Generate visualizations with just one line of code, simplifying the validation of process.
+- **Plotting utilities**: Generate visualizations with just one line of code, simplifying the validation process.
 
 ## Functionalities
 This library simplifies the standard workflow commonly used for a priori validation with DNS data. 
