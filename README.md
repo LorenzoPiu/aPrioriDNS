@@ -55,6 +55,7 @@ https://apriori.gitbook.io/apriori-documentation-1
 
 ## How to cite
 This open-source software is distributed under the MIT license. If you use it in your work, please cite it as:
+
 Lorenzo Piu. ‘aprioridns: V1.1.8’. Zenodo, 19 September 2024. https://doi.org/10.5281/zenodo.13793623.
 
 ## Quickstart
