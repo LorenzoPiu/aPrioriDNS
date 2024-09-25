@@ -2904,10 +2904,10 @@ class Scalar3D:
         valid_shape =  False
         if isinstance(shape, list) and len(shape)==Scalar3D.__scalar_dimension:
             for item in shape:
-                if not isinstance(item, int):
+                if isinstance(item, int):
                     valid_shape =  True
         if valid_shape is False:
-            ValueError("The shape of the 3d field must be a list of 3 integers")
+            raise ValueError("The shape of the 3d field must be a list of 3 integers")
         # setting the shape, Nx, Ny, Nz
         self.shape = shape
         
