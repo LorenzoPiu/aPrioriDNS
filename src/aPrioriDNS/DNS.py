@@ -259,6 +259,7 @@ class Field3D():
         else:
             self.attr_list.append(attr_name)
             self.paths_list.append(os.path.join(self.data_path, file_name))
+            setattr(self, attr_name, Scalar3D(self.shape, path=os.path.join(self.data_path, file_name)))
             
         self.update()
             
