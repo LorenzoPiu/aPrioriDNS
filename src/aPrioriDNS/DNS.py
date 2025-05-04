@@ -3696,6 +3696,15 @@ class Mesh3D:
 #                               Functions
 ###############################################################################
 
+def add_variable(attribute_name, file_name, species=False, models=None, tensor=False, description=''):
+    # TODO: add a check that an attribute with the same name does not exist yet
+    
+    # TODO: Check in general that the files have the correct form
+    
+    variables_list[attribute_name] = [file_name, species, models, tensor, description]
+    
+    return
+
 
 def compute_cell_volumes(x, y, z):
     """
