@@ -475,7 +475,7 @@ class Field3D():
         - The mixture fraction Z must be computed and available as an attribute.
         - The thermal conductivity Lambda and specific heat Cp must be computed.
         - The gradient of Z (Z_grad) should be available or will be computed if missing.
-    
+        
         Raises:
         ------
         ValueError
@@ -2191,6 +2191,7 @@ class Field3D():
         print (f"Done cutting Field '{self.folder_path}'.")
         
         return cut_folder_path
+    
         
     def filter_favre(self, filter_size, filter_type='Gauss'):
         """
@@ -3914,6 +3915,9 @@ def download(repo_url="https://github.com/LorenzoPiu/aPrioriDNS/tree/main/data",
 
     return downloaded_files
 
+def downsample(array):
+    # TODO complete this function
+    return
 
 def process_file(file_path):
     """
