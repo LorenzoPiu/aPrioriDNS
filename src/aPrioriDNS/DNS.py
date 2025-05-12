@@ -1680,7 +1680,6 @@ class Field3D():
         # Save file
         file_name     = self.find_path('S_{}'.format(closure))
         save_file(S, file_name)
-        
             
         self.update(verbose=True)
         return
@@ -1769,7 +1768,7 @@ class Field3D():
         self.update()
         valid_modes = self.variables["TAU_r_{}{}_{}"][2]
         
-        # Check that the field is a filtered field, if not it does not make sense
+        # Check that the field is a filtered field, otherwise it does not make sense
         # to compute the closure for the residual quantities
         if self.filter_size == 1:
             raise ValueError("The field is not a filtered field.\n"
@@ -1876,7 +1875,7 @@ class Field3D():
                         Tau_r_ij -= delta_dirac*2/3*self.K_r_DNS._3d
                         Tau_r    += 2*(Tau_r_ij**2)
                         if i!=j:  # take into account the sub-diagonal element in the computation of the module
-                            Tau_r    += 2*(Tau_r_ij**2) 
+                            Tau_r    += 2*(Tau_r_ij**2)
                         if save_tensor_components:
                             save_file(Tau_r_ij, file_name)
                         del Tau_r_ij
@@ -1887,6 +1886,36 @@ class Field3D():
             self.update()
         
         return
+    
+    def compute_temperature_fluxes(self):
+        if self.filter_size==1:
+            closure = 'DNS'
+        else:
+            closure = 'LES'
+            
+        shape = self.shape
+        filter_size = self.filter_size
+        
+        # Compute flux in the x direction
+        T_flux_X = self.RHO.value*self.U_X.value*self.T.value
+        file_name=  self.find_path(f"RHO_UX_T_{closure}")
+        save_file(T_flux_X, file_name)
+        del T_flux_X # Release memory
+        
+        # Compute flux in the y direction
+        T_flux_Y = self.RHO.value*self.U_Y.value*self.T.value
+        file_name=  self.find_path(f"RHO_UY_T_{closure}")
+        save_file(T_flux_Y, file_name)
+        del T_flux_Y # Release memory
+        
+        # Compute flux in the z direction
+        T_flux_Z = self.RHO.value*self.U_Z.value*self.T.value
+        file_name=  self.find_path(f"RHO_UZ_T_{closure}")
+        save_file(T_flux_Z, file_name)
+        del T_flux_Z # Release memory
+        
+        self.update()
+        
     
     def compute_transport_properties(self, n_chunks = 5000, Cp=True, Lambda=True, verbose=False):
         # check if the paths already exist, and delete the files in case
@@ -1959,6 +1988,38 @@ class Field3D():
         output_file_Cp.close()
         
         self.update()
+        
+    def compute_unresolved_temperature_fluxes(self, mode='DNS'):
+        valid_modes = ['DNS']
+        check_input_string(mode, valid_modes, 'mode')
+        
+        # Check that the field is a filtered field, if not it does not make sense
+        # to compute the closure for the residual quantities
+        if self.filter_size == 1:
+            raise ValueError("The field is not a filtered field.\n"
+                             "Computing residual quantities only makes sense for filtered fields."
+                             "You can filter the entire field with the command:\n>>>your_field_object.filter(filter_size)"
+                             "\nor:\n>>>your_field_object.filter_favre(filter_size)")
+        
+        if mode == 'DNS':
+            # Compute residual fluxes in the x direction
+            Phi_T_x = self.RHO_UX_T_DNS.value - self.RHO_UX_T_LES.value
+            save_file(Phi_T_x, self.find_path("TAU_T_X"))
+            del Phi_T_x # Release memory
+            
+            # Compute residual fluxes in the y direction
+            Phi_T_y = self.RHO_UY_T_DNS.value - self.RHO_UY_T_LES.value
+            save_file(Phi_T_y, self.find_path("TAU_T_Y"))
+            del Phi_T_y # Release memory
+            
+            # Compute residual fluxes in the z direction
+            Phi_T_z = self.RHO_UZ_T_DNS.value - self.RHO_UZ_T_LES.value
+            save_file(Phi_T_z, self.find_path("TAU_T_Z"))
+            del Phi_T_Z # Release memory
+            
+            self.update()
+        
+        return
             
     
     def compute_velocity_module(self):
@@ -4548,7 +4609,6 @@ def process_species_in_chunks(file_paths, species_file, chunk_size):
         for data_chunk in read_variable_in_chunks(file_paths['folder_path'] + file_paths['data_path'] + specie_file, chunk_size):
             species_data_chunks[-1].append(data_chunk)
     return species_data_chunks
-
 
 def x_midplane(array):
     if not isinstance(array, np.ndarray):
