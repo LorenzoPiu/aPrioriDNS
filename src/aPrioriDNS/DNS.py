@@ -201,6 +201,9 @@ class Field3D():
         self.grid_path = os.path.join(folder_path, folder_structure["grid_path"])
         
         self.filter_size = extract_filter(folder_path)
+        self.downsampled = False
+        if 'DS' in self.folder_path:
+            self.downsampled = True
         
         with open(os.path.join(self.folder_path,'info.json'), 'r') as file:
             self.info = json.load(file)
@@ -1147,11 +1150,14 @@ class Field3D():
         for attr, path in zip(self.attr_list, self.paths_list):
             if attr.startswith('R'):
                 if mode in attr:
-                    reaction_rates_paths.append(path)
+                    if not ('RHO_' in attr):
+                        reaction_rates_paths.append(path)
         species_paths = []
         for attr, path in zip(self.attr_list, self.paths_list):
             if attr.startswith('Y'):
                 species_paths.append(path)
+                
+        print( [len(species_paths), len(self.species),  len(reaction_rates_paths), ])
                 
         if (len(species_paths)!=len(self.species)) or(len(reaction_rates_paths)!=len(self.species)):
             raise ValueError("Lenght of the lists must be equal to the number of species. "
@@ -1611,6 +1617,9 @@ class Field3D():
         
         shape = self.shape
         filter_size = self.filter_size
+        if self.downsampled is True:
+            filter_size =  1  # filter_size is used for the gradients computation
+            # if the field is downsampled, there is no need to compute gradients skipping values
         mesh = self.mesh
         
         # define the list to use to change the file name
@@ -2015,7 +2024,7 @@ class Field3D():
             # Compute residual fluxes in the z direction
             Phi_T_z = self.RHO_UZ_T_DNS.value - self.RHO_UZ_T_LES.value
             save_file(Phi_T_z, self.find_path("TAU_T_Z"))
-            del Phi_T_Z # Release memory
+            del Phi_T_z # Release memory
             
             self.update()
         
@@ -2096,11 +2105,16 @@ class Field3D():
                              ">>> my_field = ap.Field3D('path_to_your_folder')\n"
                              ">>> my_field.compute_mixture_fraction(Y_ox_2=0.233, Y_f_1=0.117, s=2)"
                              )
-            
+        
+        if self.downsampled is True:
+            filter_size = 1
+        else:
+            filter_size = self.filter_size
+        
         grad_Z = np.sqrt(
-            gradient_x(self.Z, self.mesh, self.filter_size)**2 + 
-            gradient_y(self.Z, self.mesh, self.filter_size)**2 + 
-            gradient_z(self.Z, self.mesh, self.filter_size)**2
+            gradient_x(self.Z, self.mesh, filter_size)**2 + 
+            gradient_y(self.Z, self.mesh, filter_size)**2 + 
+            gradient_z(self.Z, self.mesh, filter_size)**2
             )
         
         save_file(grad_Z, self.find_path('Z_grad'))
@@ -4271,7 +4285,7 @@ def gradient_x(F, mesh, filter_size=1):
         -----------
         
         Computes the gradient of a 3D, non downsampled, filtered field. Numpy is
-        used to computed the gradients on all the possible downsampled grids.
+        used to compute the gradients on all the possible downsampled grids.
         
         Specifically, the parameter filter_size is used to temporarily downsample
         the grid in the x direction. The function considers one point each 
