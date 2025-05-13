@@ -2191,7 +2191,71 @@ class Field3D():
         print (f"Done cutting Field '{self.folder_path}'.")
         
         return cut_folder_path
-    
+
+    def downsample(self, ds_size=None):
+        
+        print("\n---------------------------------------------------------------")
+        print (f"Downsampling Field '{self.folder_path}'...")
+        
+        if self.filter_size != 1:
+            if ds_size is None:
+                ds_size = self.filter_size
+                print("Downsampling size not specified."
+                      f"The field will be downsampled with the same size used for filtering, delta = {self.filter_size}")
+        else:
+            if ds_size is None:
+                raise ValueError("The field is not filtered, please specify a downsampling size.")
+        
+        ds_folder_path = self.folder_path+'DS'
+        ds_data_path   = os.path.join(ds_folder_path, folder_structure["data_path"])
+        ds_grid_path   = os.path.join(ds_folder_path, folder_structure["grid_path"])    
+        ds_chem_path   = os.path.join(ds_folder_path, folder_structure["chem_path"])  
+        
+        if not os.path.exists(ds_folder_path):
+            os.makedirs(ds_folder_path)
+        else:
+            user_input = input("The folder already exists. This operation will overwrite the content of the folder. Do you want to continue? (yes/no): ")
+            if user_input.lower() != "yes":
+                print("Operation aborted.")
+                sys.exit()
+            else:
+                pass
+        if not os.path.exists(ds_data_path):
+            os.makedirs(ds_data_path)
+        if not os.path.exists(ds_grid_path):
+            os.makedirs(ds_grid_path)
+        if not os.path.exists(ds_chem_path):
+            shutil.copytree(self.chem_path, ds_chem_path)
+            
+        for attribute, file_path, is_present in zip(self.attr_list, self.paths_list, self.bool_list):
+            if is_present:
+                file_name = os.path.basename(file_path)
+                ds_file_path  = os.path.join(ds_data_path, file_name)
+                
+                scalar = getattr(self, attribute)
+                scalar_ds = downsample(scalar._3D, ds_size)
+                
+                save_file(scalar_ds, ds_file_path)
+                
+        new_shape = scalar_ds.shape
+        
+        info = self.info
+        info['global']['Nxyz'] = new_shape
+        
+        with open(os.path.join(ds_folder_path, 'info.json'), "w") as json_file:
+            json.dump(info, json_file)
+            
+        for attribute in ['X', 'Y', 'Z']:
+            scalar = getattr(self.mesh, attribute)
+            file_name = os.path.basename(scalar.path)
+            ds_file_path  = os.path.join(ds_grid_path, file_name)
+            scalar_ds = downsample(scalar._3D, ds_size)
+            
+            save_file(scalar_ds, ds_file_path)
+        
+        print (f"Done downsampling field '{self.folder_path}'.")
+        
+        return ds_folder_path    
         
     def filter_favre(self, filter_size, filter_type='Gauss'):
         """
@@ -3915,9 +3979,21 @@ def download(repo_url="https://github.com/LorenzoPiu/aPrioriDNS/tree/main/data",
 
     return downloaded_files
 
-def downsample(array):
-    # TODO complete this function
-    return
+def downsample(array, N):
+    
+    if not isinstance(array, np.ndarray):
+        raise ValueError("the input must be a numpy array")
+    if not len(array.shape) == 3:
+        raise ValueError("The input must be a 3 dimensional array")
+    if not isinstance(N, int):
+        raise ValueError("N must be an integer")
+    
+    N_start = list()
+    for i in range(len(array.shape)): # loop through each dimension
+        length = array.shape[i]
+        N_start.append((length%N)//2)
+        
+    return array[N_start[0]:array.shape[0]:N, N_start[1]:array.shape[1]:N, N_start[2]:array.shape[2]:N]
 
 def process_file(file_path):
     """
