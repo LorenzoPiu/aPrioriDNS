@@ -2202,6 +2202,14 @@ class Field3D():
                 ds_size = self.filter_size
                 print("Downsampling size not specified."
                       f"The field will be downsampled with the same size used for filtering, delta = {self.filter_size}")
+            else:
+                if ds_size != self.filter_size:
+                    user_input = input("The folder already exists. This operation will overwrite the content of the folder. Do you want to continue? (yes/no): ")
+                    if user_input.lower() != "yes":
+                        print("Operation aborted.")
+                        sys.exit()
+                    else:
+                        pass
         else:
             if ds_size is None:
                 raise ValueError("The field is not filtered, please specify a downsampling size.")
