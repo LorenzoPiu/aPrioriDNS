@@ -34,6 +34,10 @@ variables_list = {
              "Cp"             : ["Cp_W_m-1_K-1_{}.dat"          ,   False   ,       None              ,      False       , "Specific heat"],
              "Lambda"         : ["Lambda_W_m-1_K-1_{}.dat"      ,   False   ,       None              ,      False       , "Thermal conductivity"],
              "C"              : ["C_{}.dat"                     ,   False   ,       None              ,      False       , "Progress variable"],
+             "C_grad"         : ["C_grad_m-1_{}.dat"            ,   False   ,       None              ,      False       , "Progress variable gradient (module)"],
+             "C_grad_X"       : ["C_grad_X_m-1_{}.dat"          ,   False   ,       None              ,      False       , "Progress variable gradient (x component)"],
+             "C_grad_Y"       : ["C_grad_Y_m-1_{}.dat"          ,   False   ,       None              ,      False       , "Progress variable gradient (y component)"],
+             "C_grad_Z"       : ["C_grad_Z_m-1_{}.dat"          ,   False   ,       None              ,      False       , "Progress variable gradient (z component)"],
              "Z"              : ["Z_{}.dat"                     ,   False   ,       None              ,      False       , "Mixture fraction"],
              "Z_grad"         : ["Z_grad_m-1_{}.dat"            ,   False   ,       None              ,      False       , "Mixture fraction gradient modulus"],
              "Chi_Z"          : ["Chi_Z_ms-1_{}.dat"            ,   False   ,       None              ,      False       , "Mixture fraction Dissipation rate"],
@@ -44,7 +48,12 @@ variables_list = {
              "TAU_T_X"        : ["TAU_T_X_kgKm-2s-1_{}.dat"     ,   False   ,       None              ,      False       , "Sub-filter temperature flux in the X direction"  ],
              "TAU_T_Y"        : ["TAU_T_Y_kgKm-2s-1_{}.dat"     ,   False   ,       None              ,      False       , "Sub-filter temperature flux in the Y direction"  ],
              "TAU_T_Z"        : ["TAU_T_Z_kgKm-2s-1_{}.dat"     ,   False   ,       None              ,      False       , "Sub-filter temperature flux in the Z direction"  ],
-            
+             "PHI_C_X_{}"     : ["PHI_C_X_{}_kgm-2s-1_{}.dat"   ,   False   ,    ['DNS', 'LES']       ,      False       , "PV convective flux in the X direction"],
+             "PHI_C_Y_{}"     : ["PHI_C_Y_{}_kgm-2s-1_{}.dat"   ,   False   ,    ['DNS', 'LES']       ,      False       , "PV convective flux in the Y direction"],
+             "PHI_C_Z_{}"     : ["PHI_C_Z_{}_kgm-2s-1_{}.dat"   ,   False   ,    ['DNS', 'LES']       ,      False       , "PV convective flux in the Z direction"],
+             "TAU_C_X"        : ["TAU_C_X_kgm-2s-1_{}.dat"      ,   False   ,       None              ,      False       , "Sub-filter PV flux in the X direction"  ],
+             "TAU_C_Y"        : ["TAU_C_Y_kgm-2s-1_{}.dat"      ,   False   ,       None              ,      False       , "Sub-filter PV flux in the Y direction"  ],
+             "TAU_C_Z"        : ["TAU_C_Z_kgm-2s-1_{}.dat"      ,   False   ,       None              ,      False       , "Sub-filter PV flux in the Y direction"  ],
             }
 
 mesh_list  = {
