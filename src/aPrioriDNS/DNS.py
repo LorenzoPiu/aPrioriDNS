@@ -3807,9 +3807,9 @@ class Mesh3D:
         self.Ny = shape[1]
         self.Nz = shape[2]
         
-        self.X = X
-        self.Y = Y
-        self.Z = Z
+        self.X = X.copy()
+        self.Y = Y.copy()
+        self.Z = Z.copy()
         
         x_mid = self.shape[0]//2
         y_mid = self.shape[1]//2
@@ -3824,7 +3824,9 @@ class Mesh3D:
         self._Y_midX = Y._3d[x_mid, :, :]
         self._Z_midX = Z._3d[x_mid, :, :]
         
-        # Characteristic mesh dimension
+        
+        
+        # Characteristic mesh dimension (approximated with the avg value)
         self.l = (np.average(np.diff(self.X1D))*np.average(np.diff(self.Y1D))*np.average(np.diff(self.Z1D)))**(1/3)
         
     # The value attribute contains the array with the values of the field.
@@ -3832,17 +3834,20 @@ class Mesh3D:
     
     @property
     def X1D(self):
-        self._X1D = np.unique(self.X.value)
+        if not hasattr(self, '_X1D'):
+            self._X1D = np.unique(self.X.value)
         return self._X1D
 
     @property
     def Y1D(self):
-        self._Y1D = np.unique(self.Y.value)
+        if not hasattr(self, '_X1D'):
+            self._Y1D = np.unique(self.Y.value)
         return self._Y1D    
 
     @property
     def Z1D(self):
-        self._Z1D = np.unique(self.Z.value)
+        if not hasattr(self, '_X1D'):
+            self._Z1D = np.unique(self.Z.value)
         return self._Z1D    
     
     @property
