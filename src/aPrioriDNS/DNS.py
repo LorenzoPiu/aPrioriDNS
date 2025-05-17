@@ -531,7 +531,49 @@ class Field3D():
         save_file(Chi_Z, self.find_path('Chi_Z'))
         
         return
+    
+    def compute_gradient_C(self):
+        # Check that the mixture fraction is available
+        self.update(verbose=False)
+        if not hasattr(self, 'C'):
+            raise ValueError("To compute the progress variable gradient, the progress variable C is needed.\n"
+                             "You can compute C using the function compute_progress_variable.\n"
+                             "Example usage:\n"
+                             ">>> import aPrioriDNS as ap"
+                             ">>> my_field = ap.Field3D('path_to_your_folder')\n"
+                             ">>> my_field.compute_progress_variable(species='H2O')"
+                             )
         
+        if self.downsampled is True:
+            filter_size = 1
+        else:
+            filter_size = self.filter_size
+        
+        grad_C_x = gradient_x(self.C, self.mesh, filter_size)
+        save_file(grad_C_x, self.find_path('C_grad_X'))
+        self.update()
+        del grad_C_x # release memory
+        
+        grad_C_y = gradient_y(self.C, self.mesh, filter_size)
+        save_file(grad_C_y, self.find_path('C_grad_Y'))
+        self.update()
+        del grad_C_y # release memory
+        
+        grad_C_z = gradient_z(self.C, self.mesh, filter_size)
+        save_file(grad_C_z, self.find_path('C_grad_Z'))
+        self.update()
+        del grad_C_z # release memory
+        
+        grad_C = np.sqrt(
+            self.C_grad_X.value**2 + 
+            self.C_grad_Y.value**2 + 
+            self.C_grad_Z.value**2
+            )
+        save_file(grad_C, self.find_path('C_grad'))
+        self.update()
+        del grad_C # release memory
+        
+        return
     
     def compute_kinetic_energy(self):
         """
@@ -877,9 +919,9 @@ class Field3D():
         # maximum specie mass fraction value. The unburnt gas mass fraction
         # is set by default to the minimum value.
         if Y_b is None:
-            Y_b = np.max(Y)
+            Y_b = np.max(Y.value)
         if Y_u is None:
-            Y_u = np.min(Y)
+            Y_u = np.min(Y.value)
 
         C = 1 - (Y.value - Y_u) / (Y_b - Y_u)
         save_file(C, self.find_path("C"))
