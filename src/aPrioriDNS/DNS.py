@@ -927,7 +927,34 @@ class Field3D():
         save_file(C, self.find_path("C"))
         self.update()
         
-
+    def compute_progress_variable_fluxes(self):
+        if (self.filter_size==1) and (not (self.downsampled)):
+            closure = 'DNS'
+        else:
+            closure = 'LES'
+            
+        shape = self.shape
+        filter_size = self.filter_size
+        
+        # Compute flux in the x direction
+        C_flux_X = self.RHO.value*self.U_X.value*self.C.value
+        file_name=  self.find_path(f"PHI_C_X_{closure}")
+        save_file(C_flux_X, file_name)
+        del C_flux_X # Release memory
+        
+        # Compute flux in the y direction
+        C_flux_Y = self.RHO.value*self.U_Y.value*self.C.value
+        file_name=  self.find_path(f"PHI_C_Y_{closure}")
+        save_file(C_flux_Y, file_name)
+        del C_flux_Y # Release memory
+        
+        # Compute flux in the z direction
+        C_flux_Z = self.RHO.value*self.U_Z.value*self.C.value
+        file_name=  self.find_path(f"PHI_C_Z_{closure}")
+        save_file(C_flux_Z, file_name)
+        del C_flux_Z # Release memory
+        
+        self.update()
     
     def compute_residual_kinetic_energy(self, mode='Yosh'):
         """
@@ -1231,7 +1258,7 @@ class Field3D():
         
                     
         # Step 5: Compute reaction rates
-        chunk_size = self.shape[0] * self.shape [1] * self.shape[2] // n_chunks
+        chunk_size = self.shape[0] * self.shape [1] * self.shape[2] // n_chunks + 1
         gas = ct.Solution(self.kinetic_mechanism)
         
         # Open output files in writing mode
@@ -1375,7 +1402,7 @@ class Field3D():
         
                     
         # Step 5: Compute reaction rates
-        chunk_size = self.shape[0] * self.shape [1] * self.shape[2] // n_chunks
+        chunk_size = self.shape[0] * self.shape [1] * self.shape[2] // n_chunks + 1
         gas = ct.Solution(self.kinetic_mechanism)
         
         # Open output files in writing mode
@@ -1519,7 +1546,7 @@ class Field3D():
         
         # Step 5: Compute reaction rates
         gas = ct.Solution(self.kinetic_mechanism)
-        chunk_size = self.shape[0] * self.shape[1] * self.shape[2] // n_chunks
+        chunk_size = self.shape[0] * self.shape[1] * self.shape[2] // n_chunks + 1
     
         # Open output files in writing mode
         output_files_R = [open(reaction_rate_path, 'ab') for reaction_rate_path in reaction_rates_paths]
@@ -1949,19 +1976,19 @@ class Field3D():
         
         # Compute flux in the x direction
         T_flux_X = self.RHO.value*self.U_X.value*self.T.value
-        file_name=  self.find_path(f"RHO_UX_T_{closure}")
+        file_name=  self.find_path(f"PHI_T_X_{closure}")
         save_file(T_flux_X, file_name)
         del T_flux_X # Release memory
         
         # Compute flux in the y direction
         T_flux_Y = self.RHO.value*self.U_Y.value*self.T.value
-        file_name=  self.find_path(f"RHO_UY_T_{closure}")
+        file_name=  self.find_path(f"PHI_T_Y_{closure}")
         save_file(T_flux_Y, file_name)
         del T_flux_Y # Release memory
         
         # Compute flux in the z direction
         T_flux_Z = self.RHO.value*self.U_Z.value*self.T.value
-        file_name=  self.find_path(f"RHO_UZ_T_{closure}")
+        file_name=  self.find_path(f"PHI_T_Z_{closure}")
         save_file(T_flux_Z, file_name)
         del T_flux_Z # Release memory
         
@@ -1995,7 +2022,7 @@ class Field3D():
         
                     
         # Step 5: Compute reaction rates
-        chunk_size = self.shape[0] * self.shape [1] * self.shape[2] // n_chunks
+        chunk_size = self.shape[0] * self.shape [1] * self.shape[2] // n_chunks +1
         gas = ct.Solution(self.kinetic_mechanism)
         
         # Open output files in writing mode
@@ -2040,6 +2067,42 @@ class Field3D():
         
         self.update()
         
+    def compute_unresolved_pv_fluxes(self, mode='DNS'):
+        valid_modes = ['DNS']
+        check_input_string(mode, valid_modes, 'mode')
+        
+        # Check that the field is a filtered field, if not it does not make sense
+        # to compute the closure for the residual quantities
+        if self.downsampled:
+            raise ValueError("This operation is not enabled for downsampled fields."
+                             "Please compute the unresolved fluxes on a non-downsampled "
+                             "filtered field, and then apply the downsampling")
+        if self.filter_size == 1:
+            raise ValueError("The field is not a filtered field.\n"
+                             "Computing residual quantities only makes sense for filtered fields."
+                             "You can filter the entire field with the command:\n>>>your_field_object.filter(filter_size)"
+                             "\nor:\n>>>your_field_object.filter_favre(filter_size)")
+        
+        if mode == 'DNS':
+            # Compute residual fluxes in the x direction
+            Tau_C_x = self.PHI_C_X_DNS.value - self.PHI_C_X_LES.value
+            save_file(Tau_C_x, self.find_path("TAU_C_X"))
+            del Tau_C_x # Release memory
+            
+            # Compute residual fluxes in the y direction
+            Tau_C_y = self.PHI_C_Y_DNS.value - self.PHI_C_Y_LES.value
+            save_file(Tau_C_y, self.find_path("TAU_C_Y"))
+            del Tau_C_y # Release memory
+            
+            # Compute residual fluxes in the z direction
+            Tau_C_z = self.PHI_C_Z_DNS.value - self.PHI_C_Z_LES.value
+            save_file(Tau_C_z, self.find_path("TAU_C_Z"))
+            del Tau_C_z # Release memory
+            
+            self.update()
+        
+        return
+        
     def compute_unresolved_temperature_fluxes(self, mode='DNS'):
         valid_modes = ['DNS']
         check_input_string(mode, valid_modes, 'mode')
@@ -2054,17 +2117,17 @@ class Field3D():
         
         if mode == 'DNS':
             # Compute residual fluxes in the x direction
-            Phi_T_x = self.RHO_UX_T_DNS.value - self.RHO_UX_T_LES.value
+            Phi_T_x = self.PHI_T_X_DNS.value - self.PHI_T_X_LES.value
             save_file(Phi_T_x, self.find_path("TAU_T_X"))
             del Phi_T_x # Release memory
             
             # Compute residual fluxes in the y direction
-            Phi_T_y = self.RHO_UY_T_DNS.value - self.RHO_UY_T_LES.value
+            Phi_T_y = self.PHI_T_Y_DNS.value - self.PHI_T_Y_LES.value
             save_file(Phi_T_y, self.find_path("TAU_T_Y"))
             del Phi_T_y # Release memory
             
             # Compute residual fluxes in the z direction
-            Phi_T_z = self.RHO_UZ_T_DNS.value - self.RHO_UZ_T_LES.value
+            Phi_T_z = self.PHI_T_Z_DNS.value - self.PHI_T_Z_LES.value
             save_file(Phi_T_z, self.find_path("TAU_T_Z"))
             del Phi_T_z # Release memory
             
@@ -3807,9 +3870,9 @@ class Mesh3D:
         self.Ny = shape[1]
         self.Nz = shape[2]
         
-        self.X = X.copy()
-        self.Y = Y.copy()
-        self.Z = Z.copy()
+        self.X = X
+        self.Y = Y
+        self.Z = Z
         
         x_mid = self.shape[0]//2
         y_mid = self.shape[1]//2
@@ -3824,7 +3887,9 @@ class Mesh3D:
         self._Y_midX = Y._3d[x_mid, :, :]
         self._Z_midX = Z._3d[x_mid, :, :]
         
-        
+        self._X1D    = np.unique(self.X.value)
+        self._Y1D = np.unique(self.Y.value)
+        self._Z1D = np.unique(self.Z.value)
         
         # Characteristic mesh dimension (approximated with the avg value)
         self.l = (np.average(np.diff(self.X1D))*np.average(np.diff(self.Y1D))*np.average(np.diff(self.Z1D)))**(1/3)
@@ -3834,20 +3899,14 @@ class Mesh3D:
     
     @property
     def X1D(self):
-        if not hasattr(self, '_X1D'):
-            self._X1D = np.unique(self.X.value)
         return self._X1D
 
     @property
     def Y1D(self):
-        if not hasattr(self, '_X1D'):
-            self._Y1D = np.unique(self.Y.value)
         return self._Y1D    
 
     @property
     def Z1D(self):
-        if not hasattr(self, '_X1D'):
-            self._Z1D = np.unique(self.Z.value)
         return self._Z1D    
     
     @property
