@@ -35,3 +35,4 @@ Temporary Items
 *.icloud
 
 # End of https://www.toptal.com/developers/gitignore/api/macos
+/src/aPrioriDNS/__pycache__

@@ -201,6 +201,9 @@ class Field3D():
         self.grid_path = os.path.join(folder_path, folder_structure["grid_path"])
         
         self.filter_size = extract_filter(folder_path)
+        self.downsampled = False
+        if 'DS' in self.folder_path:
+            self.downsampled = True
         
         with open(os.path.join(self.folder_path,'info.json'), 'r') as file:
             self.info = json.load(file)
@@ -475,7 +478,7 @@ class Field3D():
         - The mixture fraction Z must be computed and available as an attribute.
         - The thermal conductivity Lambda and specific heat Cp must be computed.
         - The gradient of Z (Z_grad) should be available or will be computed if missing.
-    
+        
         Raises:
         ------
         ValueError
@@ -528,7 +531,49 @@ class Field3D():
         save_file(Chi_Z, self.find_path('Chi_Z'))
         
         return
+    
+    def compute_gradient_C(self):
+        # Check that the mixture fraction is available
+        self.update(verbose=False)
+        if not hasattr(self, 'C'):
+            raise ValueError("To compute the progress variable gradient, the progress variable C is needed.\n"
+                             "You can compute C using the function compute_progress_variable.\n"
+                             "Example usage:\n"
+                             ">>> import aPrioriDNS as ap"
+                             ">>> my_field = ap.Field3D('path_to_your_folder')\n"
+                             ">>> my_field.compute_progress_variable(species='H2O')"
+                             )
         
+        if self.downsampled is True:
+            filter_size = 1
+        else:
+            filter_size = self.filter_size
+        
+        grad_C_x = gradient_x(self.C, self.mesh, filter_size)
+        save_file(grad_C_x, self.find_path('C_grad_X'))
+        self.update()
+        del grad_C_x # release memory
+        
+        grad_C_y = gradient_y(self.C, self.mesh, filter_size)
+        save_file(grad_C_y, self.find_path('C_grad_Y'))
+        self.update()
+        del grad_C_y # release memory
+        
+        grad_C_z = gradient_z(self.C, self.mesh, filter_size)
+        save_file(grad_C_z, self.find_path('C_grad_Z'))
+        self.update()
+        del grad_C_z # release memory
+        
+        grad_C = np.sqrt(
+            self.C_grad_X.value**2 + 
+            self.C_grad_Y.value**2 + 
+            self.C_grad_Z.value**2
+            )
+        save_file(grad_C, self.find_path('C_grad'))
+        self.update()
+        del grad_C # release memory
+        
+        return
     
     def compute_kinetic_energy(self):
         """
@@ -874,15 +919,42 @@ class Field3D():
         # maximum specie mass fraction value. The unburnt gas mass fraction
         # is set by default to the minimum value.
         if Y_b is None:
-            Y_b = np.max(Y)
+            Y_b = np.max(Y.value)
         if Y_u is None:
-            Y_u = np.min(Y)
+            Y_u = np.min(Y.value)
 
         C = 1 - (Y.value - Y_u) / (Y_b - Y_u)
         save_file(C, self.find_path("C"))
         self.update()
         
-
+    def compute_progress_variable_fluxes(self):
+        if (self.filter_size==1) and (not (self.downsampled)):
+            closure = 'DNS'
+        else:
+            closure = 'LES'
+            
+        shape = self.shape
+        filter_size = self.filter_size
+        
+        # Compute flux in the x direction
+        C_flux_X = self.RHO.value*self.U_X.value*self.C.value
+        file_name=  self.find_path(f"PHI_C_X_{closure}")
+        save_file(C_flux_X, file_name)
+        del C_flux_X # Release memory
+        
+        # Compute flux in the y direction
+        C_flux_Y = self.RHO.value*self.U_Y.value*self.C.value
+        file_name=  self.find_path(f"PHI_C_Y_{closure}")
+        save_file(C_flux_Y, file_name)
+        del C_flux_Y # Release memory
+        
+        # Compute flux in the z direction
+        C_flux_Z = self.RHO.value*self.U_Z.value*self.C.value
+        file_name=  self.find_path(f"PHI_C_Z_{closure}")
+        save_file(C_flux_Z, file_name)
+        del C_flux_Z # Release memory
+        
+        self.update()
     
     def compute_residual_kinetic_energy(self, mode='Yosh'):
         """
@@ -1147,11 +1219,14 @@ class Field3D():
         for attr, path in zip(self.attr_list, self.paths_list):
             if attr.startswith('R'):
                 if mode in attr:
-                    reaction_rates_paths.append(path)
+                    if not ('RHO_' in attr):
+                        reaction_rates_paths.append(path)
         species_paths = []
         for attr, path in zip(self.attr_list, self.paths_list):
             if attr.startswith('Y'):
                 species_paths.append(path)
+                
+        print( [len(species_paths), len(self.species),  len(reaction_rates_paths), ])
                 
         if (len(species_paths)!=len(self.species)) or(len(reaction_rates_paths)!=len(self.species)):
             raise ValueError("Lenght of the lists must be equal to the number of species. "
@@ -1183,7 +1258,7 @@ class Field3D():
         
                     
         # Step 5: Compute reaction rates
-        chunk_size = self.shape[0] * self.shape [1] * self.shape[2] // n_chunks
+        chunk_size = self.shape[0] * self.shape [1] * self.shape[2] // n_chunks + 1
         gas = ct.Solution(self.kinetic_mechanism)
         
         # Open output files in writing mode
@@ -1327,7 +1402,7 @@ class Field3D():
         
                     
         # Step 5: Compute reaction rates
-        chunk_size = self.shape[0] * self.shape [1] * self.shape[2] // n_chunks
+        chunk_size = self.shape[0] * self.shape [1] * self.shape[2] // n_chunks + 1
         gas = ct.Solution(self.kinetic_mechanism)
         
         # Open output files in writing mode
@@ -1471,7 +1546,7 @@ class Field3D():
         
         # Step 5: Compute reaction rates
         gas = ct.Solution(self.kinetic_mechanism)
-        chunk_size = self.shape[0] * self.shape[1] * self.shape[2] // n_chunks
+        chunk_size = self.shape[0] * self.shape[1] * self.shape[2] // n_chunks + 1
     
         # Open output files in writing mode
         output_files_R = [open(reaction_rate_path, 'ab') for reaction_rate_path in reaction_rates_paths]
@@ -1611,6 +1686,9 @@ class Field3D():
         
         shape = self.shape
         filter_size = self.filter_size
+        if self.downsampled is True:
+            filter_size =  1  # filter_size is used for the gradients computation
+            # if the field is downsampled, there is no need to compute gradients skipping values
         mesh = self.mesh
         
         # define the list to use to change the file name
@@ -1680,7 +1758,6 @@ class Field3D():
         # Save file
         file_name     = self.find_path('S_{}'.format(closure))
         save_file(S, file_name)
-        
             
         self.update(verbose=True)
         return
@@ -1769,7 +1846,7 @@ class Field3D():
         self.update()
         valid_modes = self.variables["TAU_r_{}{}_{}"][2]
         
-        # Check that the field is a filtered field, if not it does not make sense
+        # Check that the field is a filtered field, otherwise it does not make sense
         # to compute the closure for the residual quantities
         if self.filter_size == 1:
             raise ValueError("The field is not a filtered field.\n"
@@ -1876,7 +1953,7 @@ class Field3D():
                         Tau_r_ij -= delta_dirac*2/3*self.K_r_DNS._3d
                         Tau_r    += 2*(Tau_r_ij**2)
                         if i!=j:  # take into account the sub-diagonal element in the computation of the module
-                            Tau_r    += 2*(Tau_r_ij**2) 
+                            Tau_r    += 2*(Tau_r_ij**2)
                         if save_tensor_components:
                             save_file(Tau_r_ij, file_name)
                         del Tau_r_ij
@@ -1887,6 +1964,36 @@ class Field3D():
             self.update()
         
         return
+    
+    def compute_temperature_fluxes(self):
+        if self.filter_size==1:
+            closure = 'DNS'
+        else:
+            closure = 'LES'
+            
+        shape = self.shape
+        filter_size = self.filter_size
+        
+        # Compute flux in the x direction
+        T_flux_X = self.RHO.value*self.U_X.value*self.T.value
+        file_name=  self.find_path(f"PHI_T_X_{closure}")
+        save_file(T_flux_X, file_name)
+        del T_flux_X # Release memory
+        
+        # Compute flux in the y direction
+        T_flux_Y = self.RHO.value*self.U_Y.value*self.T.value
+        file_name=  self.find_path(f"PHI_T_Y_{closure}")
+        save_file(T_flux_Y, file_name)
+        del T_flux_Y # Release memory
+        
+        # Compute flux in the z direction
+        T_flux_Z = self.RHO.value*self.U_Z.value*self.T.value
+        file_name=  self.find_path(f"PHI_T_Z_{closure}")
+        save_file(T_flux_Z, file_name)
+        del T_flux_Z # Release memory
+        
+        self.update()
+        
     
     def compute_transport_properties(self, n_chunks = 5000, Cp=True, Lambda=True, verbose=False):
         # check if the paths already exist, and delete the files in case
@@ -1915,7 +2022,7 @@ class Field3D():
         
                     
         # Step 5: Compute reaction rates
-        chunk_size = self.shape[0] * self.shape [1] * self.shape[2] // n_chunks
+        chunk_size = self.shape[0] * self.shape [1] * self.shape[2] // n_chunks +1
         gas = ct.Solution(self.kinetic_mechanism)
         
         # Open output files in writing mode
@@ -1959,6 +2066,74 @@ class Field3D():
         output_file_Cp.close()
         
         self.update()
+        
+    def compute_unresolved_pv_fluxes(self, mode='DNS'):
+        valid_modes = ['DNS']
+        check_input_string(mode, valid_modes, 'mode')
+        
+        # Check that the field is a filtered field, if not it does not make sense
+        # to compute the closure for the residual quantities
+        if self.downsampled:
+            raise ValueError("This operation is not enabled for downsampled fields."
+                             "Please compute the unresolved fluxes on a non-downsampled "
+                             "filtered field, and then apply the downsampling")
+        if self.filter_size == 1:
+            raise ValueError("The field is not a filtered field.\n"
+                             "Computing residual quantities only makes sense for filtered fields."
+                             "You can filter the entire field with the command:\n>>>your_field_object.filter(filter_size)"
+                             "\nor:\n>>>your_field_object.filter_favre(filter_size)")
+        
+        if mode == 'DNS':
+            # Compute residual fluxes in the x direction
+            Tau_C_x = self.PHI_C_X_DNS.value - self.PHI_C_X_LES.value
+            save_file(Tau_C_x, self.find_path("TAU_C_X"))
+            del Tau_C_x # Release memory
+            
+            # Compute residual fluxes in the y direction
+            Tau_C_y = self.PHI_C_Y_DNS.value - self.PHI_C_Y_LES.value
+            save_file(Tau_C_y, self.find_path("TAU_C_Y"))
+            del Tau_C_y # Release memory
+            
+            # Compute residual fluxes in the z direction
+            Tau_C_z = self.PHI_C_Z_DNS.value - self.PHI_C_Z_LES.value
+            save_file(Tau_C_z, self.find_path("TAU_C_Z"))
+            del Tau_C_z # Release memory
+            
+            self.update()
+        
+        return
+        
+    def compute_unresolved_temperature_fluxes(self, mode='DNS'):
+        valid_modes = ['DNS']
+        check_input_string(mode, valid_modes, 'mode')
+        
+        # Check that the field is a filtered field, if not it does not make sense
+        # to compute the closure for the residual quantities
+        if self.filter_size == 1:
+            raise ValueError("The field is not a filtered field.\n"
+                             "Computing residual quantities only makes sense for filtered fields."
+                             "You can filter the entire field with the command:\n>>>your_field_object.filter(filter_size)"
+                             "\nor:\n>>>your_field_object.filter_favre(filter_size)")
+        
+        if mode == 'DNS':
+            # Compute residual fluxes in the x direction
+            Phi_T_x = self.PHI_T_X_DNS.value - self.PHI_T_X_LES.value
+            save_file(Phi_T_x, self.find_path("TAU_T_X"))
+            del Phi_T_x # Release memory
+            
+            # Compute residual fluxes in the y direction
+            Phi_T_y = self.PHI_T_Y_DNS.value - self.PHI_T_Y_LES.value
+            save_file(Phi_T_y, self.find_path("TAU_T_Y"))
+            del Phi_T_y # Release memory
+            
+            # Compute residual fluxes in the z direction
+            Phi_T_z = self.PHI_T_Z_DNS.value - self.PHI_T_Z_LES.value
+            save_file(Phi_T_z, self.find_path("TAU_T_Z"))
+            del Phi_T_z # Release memory
+            
+            self.update()
+        
+        return
             
     
     def compute_velocity_module(self):
@@ -2035,11 +2210,16 @@ class Field3D():
                              ">>> my_field = ap.Field3D('path_to_your_folder')\n"
                              ">>> my_field.compute_mixture_fraction(Y_ox_2=0.233, Y_f_1=0.117, s=2)"
                              )
-            
+        
+        if self.downsampled is True:
+            filter_size = 1
+        else:
+            filter_size = self.filter_size
+        
         grad_Z = np.sqrt(
-            gradient_x(self.Z, self.mesh, self.filter_size)**2 + 
-            gradient_y(self.Z, self.mesh, self.filter_size)**2 + 
-            gradient_z(self.Z, self.mesh, self.filter_size)**2
+            gradient_x(self.Z, self.mesh, filter_size)**2 + 
+            gradient_y(self.Z, self.mesh, filter_size)**2 + 
+            gradient_z(self.Z, self.mesh, filter_size)**2
             )
         
         save_file(grad_Z, self.find_path('Z_grad'))
@@ -2130,6 +2310,79 @@ class Field3D():
         print (f"Done cutting Field '{self.folder_path}'.")
         
         return cut_folder_path
+
+    def downsample(self, ds_size=None):
+        
+        print("\n---------------------------------------------------------------")
+        print (f"Downsampling Field '{self.folder_path}'...")
+        
+        if self.filter_size != 1:
+            if ds_size is None:
+                ds_size = self.filter_size
+                print("Downsampling size not specified."
+                      f"The field will be downsampled with the same size used for filtering, delta = {self.filter_size}")
+            else:
+                if ds_size != self.filter_size:
+                    user_input = input("The folder already exists. This operation will overwrite the content of the folder. Do you want to continue? (yes/no): ")
+                    if user_input.lower() != "yes":
+                        print("Operation aborted.")
+                        sys.exit()
+                    else:
+                        pass
+        else:
+            if ds_size is None:
+                raise ValueError("The field is not filtered, please specify a downsampling size.")
+        
+        ds_folder_path = self.folder_path+'DS'
+        ds_data_path   = os.path.join(ds_folder_path, folder_structure["data_path"])
+        ds_grid_path   = os.path.join(ds_folder_path, folder_structure["grid_path"])    
+        ds_chem_path   = os.path.join(ds_folder_path, folder_structure["chem_path"])  
+        
+        if not os.path.exists(ds_folder_path):
+            os.makedirs(ds_folder_path)
+        else:
+            user_input = input("The folder already exists. This operation will overwrite the content of the folder. Do you want to continue? (yes/no): ")
+            if user_input.lower() != "yes":
+                print("Operation aborted.")
+                sys.exit()
+            else:
+                pass
+        if not os.path.exists(ds_data_path):
+            os.makedirs(ds_data_path)
+        if not os.path.exists(ds_grid_path):
+            os.makedirs(ds_grid_path)
+        if not os.path.exists(ds_chem_path):
+            shutil.copytree(self.chem_path, ds_chem_path)
+            
+        for attribute, file_path, is_present in zip(self.attr_list, self.paths_list, self.bool_list):
+            if is_present:
+                file_name = os.path.basename(file_path)
+                ds_file_path  = os.path.join(ds_data_path, file_name)
+                
+                scalar = getattr(self, attribute)
+                scalar_ds = downsample(scalar._3D, ds_size)
+                
+                save_file(scalar_ds, ds_file_path)
+                
+        new_shape = scalar_ds.shape
+        
+        info = self.info
+        info['global']['Nxyz'] = new_shape
+        
+        with open(os.path.join(ds_folder_path, 'info.json'), "w") as json_file:
+            json.dump(info, json_file)
+            
+        for attribute in ['X', 'Y', 'Z']:
+            scalar = getattr(self.mesh, attribute)
+            file_name = os.path.basename(scalar.path)
+            ds_file_path  = os.path.join(ds_grid_path, file_name)
+            scalar_ds = downsample(scalar._3D, ds_size)
+            
+            save_file(scalar_ds, ds_file_path)
+        
+        print (f"Done downsampling field '{self.folder_path}'.")
+        
+        return ds_folder_path    
         
     def filter_favre(self, filter_size, filter_type='Gauss'):
         """
@@ -3634,7 +3887,11 @@ class Mesh3D:
         self._Y_midX = Y._3d[x_mid, :, :]
         self._Z_midX = Z._3d[x_mid, :, :]
         
-        # Characteristic mesh dimension
+        self._X1D    = np.unique(self.X.value)
+        self._Y1D = np.unique(self.Y.value)
+        self._Z1D = np.unique(self.Z.value)
+        
+        # Characteristic mesh dimension (approximated with the avg value)
         self.l = (np.average(np.diff(self.X1D))*np.average(np.diff(self.Y1D))*np.average(np.diff(self.Z1D)))**(1/3)
         
     # The value attribute contains the array with the values of the field.
@@ -3642,17 +3899,14 @@ class Mesh3D:
     
     @property
     def X1D(self):
-        self._X1D = np.unique(self.X.value)
         return self._X1D
 
     @property
     def Y1D(self):
-        self._Y1D = np.unique(self.Y.value)
         return self._Y1D    
 
     @property
     def Z1D(self):
-        self._Z1D = np.unique(self.Z.value)
         return self._Z1D    
     
     @property
@@ -3695,6 +3949,15 @@ class Mesh3D:
 ###############################################################################
 #                               Functions
 ###############################################################################
+
+def add_variable(attribute_name, file_name, species=False, models=None, tensor=False, description=''):
+    # TODO: add a check that an attribute with the same name does not exist yet
+    
+    # TODO: Check in general that the files have the correct form
+    
+    variables_list[attribute_name] = [file_name, species, models, tensor, description]
+    
+    return
 
 
 def compute_cell_volumes(x, y, z):
@@ -3844,6 +4107,21 @@ def download(repo_url="https://github.com/LorenzoPiu/aPrioriDNS/tree/main/data",
 
     return downloaded_files
 
+def downsample(array, N):
+    
+    if not isinstance(array, np.ndarray):
+        raise ValueError("the input must be a numpy array")
+    if not len(array.shape) == 3:
+        raise ValueError("The input must be a 3 dimensional array")
+    if not isinstance(N, int):
+        raise ValueError("N must be an integer")
+    
+    N_start = list()
+    for i in range(len(array.shape)): # loop through each dimension
+        length = array.shape[i]
+        N_start.append((length%N)//2)
+        
+    return array[N_start[0]:array.shape[0]:N, N_start[1]:array.shape[1]:N, N_start[2]:array.shape[2]:N]
 
 def process_file(file_path):
     """
@@ -4113,7 +4391,7 @@ def gradient_x(F, mesh, filter_size=1):
         -----------
         
         Computes the gradient of a 3D, non downsampled, filtered field. Numpy is
-        used to computed the gradients on all the possible downsampled grids.
+        used to compute the gradients on all the possible downsampled grids.
         
         Specifically, the parameter filter_size is used to temporarily downsample
         the grid in the x direction. The function considers one point each 
@@ -4539,7 +4817,6 @@ def process_species_in_chunks(file_paths, species_file, chunk_size):
         for data_chunk in read_variable_in_chunks(file_paths['folder_path'] + file_paths['data_path'] + specie_file, chunk_size):
             species_data_chunks[-1].append(data_chunk)
     return species_data_chunks
-
 
 def x_midplane(array):
     if not isinstance(array, np.ndarray):
